@@ -1,7 +1,6 @@
 package com.example.demo.security;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,7 +9,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.demo.configs.SecurityConfiguration;
 import com.example.demo.error.ErrorResponse;
 import com.example.demo.models.User;
 import com.example.demo.repositories.UserRepository;
@@ -34,20 +32,16 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		try {
-			if (checkIfEndpointIsNotPublic(request)) {
-				String token = recoveryToken(request);
-				if (token != null) {
-					String subject = jwtTokenService.getSubjectFromToken(token);
-					User user = userRepository.findByName(subject).get();
-					UserDetailsImpl userDetails = new UserDetailsImpl(user);
-					
-					Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
+			String token = this.recoveryToken(request);
+			if (token != null) {
+				String subject = jwtTokenService.getSubjectFromToken(token);
+				User user = userRepository.findByName(subject).get();
+				UserDetailsImpl userDetails = new UserDetailsImpl(user);
+				
+				Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
 
-					SecurityContextHolder.getContext().setAuthentication(authentication);
-				} else {
-					throw new JWTFilterInvalidException("O token está ausente.");
-				}
-			} 
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			}
 			filterChain.doFilter(request, response);
 		} catch (JWTFilterInvalidException ex) {
 			response.setContentType("application/json");
@@ -63,11 +57,6 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
             return authorizationHeader.replace("Bearer ", "");
         }
         return null;
-    }
-	
-	private boolean checkIfEndpointIsNotPublic(HttpServletRequest request) {
-        String requestURI = request.getRequestURI();
-        return !Arrays.asList(SecurityConfiguration.ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED).contains(requestURI);
     }
 	
 	private String errorResponseJson(int httpCode, String error) {

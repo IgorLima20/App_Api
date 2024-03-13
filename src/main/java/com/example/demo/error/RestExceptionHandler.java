@@ -25,6 +25,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 	
+	@ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleAuthenticationException(Exception ex) {
+		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+	
 	@ExceptionHandler(ObjectNotFoundException.class)
     public ResponseEntity<Object> handleObjectNotFoundException(ObjectNotFoundException ex) {
 		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
@@ -49,5 +55,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
 		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
+	
 	
 }

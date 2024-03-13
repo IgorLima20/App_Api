@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.Category;
@@ -18,6 +20,10 @@ public class CategoryService {
 	
 	public List<Category> findAll() {
 		return this.categoriaRepository.findAll();
+	}
+	
+	public Page<Category> findAllPage(Pageable page) {
+		return this.categoriaRepository.findAll(page);
 	}
 	
 	public Category findById(Long id) {

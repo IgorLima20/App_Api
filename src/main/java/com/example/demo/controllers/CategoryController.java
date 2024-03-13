@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 
 import com.example.demo.models.Category;
 import com.example.demo.services.CategoryService;
@@ -30,6 +34,15 @@ public class CategoryController {
 	public ResponseEntity<List<Category>> findAll() {
 		List<Category> categoria = this.categoriaService.findAll();
 		return new ResponseEntity<List<Category>>(categoria, HttpStatus.OK);
+	}
+	
+	@GetMapping("/page")
+	public ResponseEntity<Page<Category>> findAllPage(@PageableDefault(sort = "category",
+            direction = Sort.Direction.ASC,
+            page = 0,
+            size = 5) Pageable page) {
+		Page<Category> categoria = this.categoriaService.findAllPage(page);
+		return new ResponseEntity<Page<Category>>(categoria, HttpStatus.OK);
 	}
 	
 	@GetMapping(value="/{id}")
