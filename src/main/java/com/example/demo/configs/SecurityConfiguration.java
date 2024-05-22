@@ -1,8 +1,10 @@
 package com.example.demo.configs;
 
+import com.example.demo.error.CustomAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -22,13 +24,18 @@ public class SecurityConfiguration {
 	
 	@Autowired
     private UserAuthenticationFilter userAuthenticationFilter;
+
+    @Autowired
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
 	
 	public static final String [] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = {
-		"/user",
-	    "/user/login",
-	    "/livro/foto/arquivo/{filename}"
-	   
-	 };
+            "/user",
+	        "/user/login"
+    };
+
+    public static final String [] ENDPOINTS_ADMIN_GET = {
+            "/user"
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -37,10 +44,14 @@ public class SecurityConfiguration {
         		.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorize) -> authorize
+                         .requestMatchers(HttpMethod.GET, ENDPOINTS_ADMIN_GET).hasRole("ADMIN")
                 		 .requestMatchers(ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED).permitAll()
                          .anyRequest().authenticated()
                 )
                 .addFilterBefore(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
                 .build();
     }
     

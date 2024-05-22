@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,6 +38,7 @@ public class User {
 	
 	@NotBlank(message="A senha não pode ser vazio.")
 	@Column(nullable=false, unique=true)
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 
 	@ManyToMany(fetch=FetchType.EAGER, cascade=CascadeType.PERSIST)

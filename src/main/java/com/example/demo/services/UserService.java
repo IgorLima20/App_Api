@@ -1,7 +1,10 @@
 package com.example.demo.services;
 
 import java.util.List;
+import java.util.Optional;
 
+import com.example.demo.models.Category;
+import com.example.demo.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,7 +36,14 @@ public class UserService {
 
     @Autowired
     private SecurityConfiguration securityConfiguration;
-    
+
+    public List<User> findAll() { return userRepository.findAll(); }
+
+    public User findById(Long id) {
+        Optional<User> user = this.userRepository.findById(id);
+        return user.orElseThrow(() -> new ObjectNotFoundException("Usuário informado não encontrado."));
+    }
+
     public JwtTokenDto authenticateUser(LoginDto login) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(login.getName(), login.getPassword());
 
