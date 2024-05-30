@@ -29,7 +29,7 @@ public class BookService {
 		Optional<Book> book = this.bookRepository.findById(id);
 		return book.orElseThrow(() -> new ObjectNotFoundException("Livro informado não encontrado."));
 	}
-	
+
 	public Book create(BookDto book) {
 		Category category = this.categoryService.findById(book.getCategory_id());
 		Book bookNew = new Book(book.getId(), book.getTitle(), book.getDescription(), book.getReleaseDate(), category);
@@ -47,5 +47,9 @@ public class BookService {
 		this.findById(id);
 		this.bookRepository.deleteById(id);
 	}
-	
+
+	public List<Book> findAllByCategory(Category category) {
+        return this.bookRepository.findAllByCategory(category);
+	}
+
 }

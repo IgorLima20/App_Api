@@ -3,6 +3,8 @@ package com.example.demo.services;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.demo.services.exceptions.ForeignKeyViolationException;
+import com.example.demo.services.exceptions.ObjectExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,17 +34,30 @@ public class CategoryService {
 	}
 	
 	public Category create(Category category) {
+		if (this.existsByCategory(category.getCategory())) {
+			throw new ObjectExistException("Categoria já cadastrada com o mesmo nome.");
+		}
 		return this.categoriaRepository.save(category);
 	}
 	
 	public Category update(Category category) {
 		this.findById(category.getId());
+		if (this.existsByCategory(category.getCategory())) {
+			throw new ObjectExistException("Categoria já cadastrada com o mesmo nome.");
+		}
 		return this.categoriaRepository.save(category);
 	}
 	
 	public void delete(Long id) {
-		this.findById(id);
+		Category category = this.findById(id);
+		if (!category.getBooks().isEmpty()) {
+			throw new ForeignKeyViolationException("Categoria possui livros cadastrados!");
+		}
 		this.categoriaRepository.deleteById(id);
+	}
+
+	public Boolean existsByCategory(String category) {
+		return this.categoriaRepository.existsCategoryByCategory(category);
 	}
 	
 }
